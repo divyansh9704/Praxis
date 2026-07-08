@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+
+    - name: Install Frontend Dependencies
+      run: npm ci
+
+    - name: Type Check Frontend
+      run: npm run build
+
+    - name: Rust Format Check
+      working-directory: ./src-tauri
+      run: cargo fmt -- --check
+
+    - name: Rust Clippy Check
+      working-directory: ./src-tauri
+      run: cargo clippy -- -D warnings
+
+    - name: Build Rust Backend
+      working-directory: ./src-tauri
+      run: cargo check
