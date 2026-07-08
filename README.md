@@ -1,5 +1,5 @@
 <div align="center">
- <img src="assets/praxislogo" alt="Praxis Logo" width="150" height="150" />
+ <img src="assets/praxislogo.png" alt="Praxis Logo" width="150" height="150" />
   <h1>Praxis</h1>
   <p><strong>AI THAT GETS WORK DONE</strong></p>
   <p>A blazingly fast, natively secure Desktop AI coding environment built on Rust and Tauri.</p>
