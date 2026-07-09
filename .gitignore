@@ -7,21 +7,29 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Node and Vite
+node_modules/
+dist/
+dist-ssr/
+.vite/
 *.local
 .env
+
+# Rust / Tauri
 src-tauri/target/
+
+# Databases
 *.db
-check_*.cjs
-check_*.py
-click_*.ps1
-puppeteer_test_*.cjs
-take_screenshots.ps1
-extract_logo.py
-make_square.py
-wipe_keys.py
+
+# Temporary Caches
+*.tmp
+*.cache
+__pycache__/
+*.pyc
+
+# Windows
+Thumbs.db
+Desktop.ini
 
 # Editor directories and files
 .vscode/*
