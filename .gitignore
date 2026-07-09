@@ -11,6 +11,17 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+src-tauri/target/
+*.db
+check_*.cjs
+check_*.py
+click_*.ps1
+puppeteer_test_*.cjs
+take_screenshots.ps1
+extract_logo.py
+make_square.py
+wipe_keys.py
 
 # Editor directories and files
 .vscode/*
