@@ -46,15 +46,29 @@ impl OpenRouterProvider {
         &self,
         combined_messages: &[Value],
         stream: bool,
+        preferred_model: Option<String>,
     ) -> Result<(reqwest::Response, String), PraxisError> {
         let mut last_error = String::new();
 
-        for (i, &model) in MODELS.iter().enumerate() {
+        let mut try_models: Vec<String> = Vec::new();
+        if let Some(m) = preferred_model {
+            if !m.trim().is_empty() {
+                try_models.push(m);
+            }
+        }
+        for &m in MODELS {
+            let m_str = m.to_string();
+            if !try_models.contains(&m_str) {
+                try_models.push(m_str);
+            }
+        }
+
+        for (i, model) in try_models.iter().enumerate() {
             println!(
                 "🤖 OpenRouter: Attempting model '{}' (slot {}/{})",
                 model,
                 i + 1,
-                MODELS.len()
+                try_models.len()
             );
 
             let body = json!({
@@ -86,7 +100,7 @@ impl OpenRouterProvider {
                         model, e
                     );
                     if e.is_timeout() {
-                        if i < MODELS.len() - 1 {
+                        if i < try_models.len() - 1 {
                             continue;
                         } else {
                             return Err(PraxisError::LlmError(
@@ -118,7 +132,7 @@ impl OpenRouterProvider {
                                 "OpenRouter daily quota exceeded".into(),
                             ));
                         }
-                        if i < MODELS.len() - 1 {
+                        if i < try_models.len() - 1 {
                             continue;
                         } else {
                             return Err(PraxisError::LlmError(
@@ -128,7 +142,7 @@ impl OpenRouterProvider {
                     }
                     408 | 404 | 500..=599 => {
                         last_error = format!("OpenRouter API {} — {}", status, text);
-                        if i < MODELS.len() - 1 {
+                        if i < try_models.len() - 1 {
                             continue;
                         } else {
                             return Err(PraxisError::LlmError(last_error));
@@ -138,7 +152,7 @@ impl OpenRouterProvider {
                         if text_lower.contains("not a valid model") {
                             last_error =
                                 format!("OpenRouter API {} — invalid model: {}", status, model);
-                            if i < MODELS.len() - 1 {
+                            if i < try_models.len() - 1 {
                                 continue;
                             } else {
                                 return Err(PraxisError::LlmError(last_error));
@@ -180,6 +194,7 @@ impl OpenRouterProvider {
         &self,
         messages: &[LlmMessage],
         system: &str,
+        preferred_model: Option<String>,
         channel: tauri::ipc::Channel<String>,
         app_handle: tauri::AppHandle,
     ) -> Result<String, PraxisError> {
@@ -196,7 +211,7 @@ impl OpenRouterProvider {
         }
 
         // Use the shared fallback loop with streaming enabled.
-        let (resp, model_used) = self.request_with_fallback(&combined_messages, true).await?;
+        let (resp, model_used) = self.request_with_fallback(&combined_messages, true, preferred_model).await?;
 
         // Broadcast the model used to the frontend for the ModelStatus panel.
         let _ = app_handle.emit("llm_model_used", &model_used);
@@ -323,7 +338,7 @@ mod tests {
 
         // Call the ACTUAL fallback logic.
         let messages = vec![json!({"role": "user", "content": "test prompt"})];
-        let result = provider.request_with_fallback(&messages, false).await;
+        let result = provider.request_with_fallback(&messages, false, None).await;
 
         // ── Assertions ──
         assert!(
@@ -382,7 +397,7 @@ mod tests {
         );
 
         let messages = vec![json!({"role": "user", "content": "test"})];
-        let result = provider.request_with_fallback(&messages, false).await;
+        let result = provider.request_with_fallback(&messages, false, None).await;
 
         assert!(result.is_err());
         let err_msg = result.unwrap_err().to_string();
@@ -440,7 +455,7 @@ mod tests {
         );
 
         let messages = vec![json!({"role": "user", "content": "test"})];
-        let result = provider.request_with_fallback(&messages, false).await;
+        let result = provider.request_with_fallback(&messages, false, None).await;
 
         assert!(result.is_ok());
         let (response, model_used) = result.unwrap();

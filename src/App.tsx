@@ -9,13 +9,14 @@ import AuditLog from "./components/AuditLog";
 import FileBrowser from "./components/FileBrowser";
 import ModelStatus from "./components/ModelStatus";
 import Settings from "./components/Settings";
-import { Settings as SettingsIcon } from "lucide-react";
+import Models from "./components/Models";
+import { Settings as SettingsIcon, Database } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import CommandPalette from "./components/CommandPalette";
 import AnimatedNumber from "./components/AnimatedNumber";
 
-type ViewState = 'loading' | 'onboarding' | 'chat' | 'audit_log' | 'files' | 'settings';
+type ViewState = 'loading' | 'onboarding' | 'chat' | 'audit_log' | 'files' | 'settings' | 'models';
 
 function App() {
   const [view, setViewState] = useState<ViewState>('loading');
@@ -248,6 +249,10 @@ function App() {
               {view === 'audit_log' && <motion.div layoutId="activeNav" className="nav-item-bg" />}
               <Activity size={18} style={{ zIndex: 1 }} /> <span style={{ zIndex: 1 }}>Audit Log</span>
             </div>
+            <div className={`nav-item ${view === 'models' ? 'active' : ''}`} onClick={() => setViewState('models')}>
+              {view === 'models' && <motion.div layoutId="activeNav" className="nav-item-bg" />}
+              <Database size={18} style={{ zIndex: 1 }} /> <span style={{ zIndex: 1 }}>Models</span>
+            </div>
             <div className={`nav-item ${view === 'settings' ? 'active' : ''}`} onClick={() => setViewState('settings')}>
               {view === 'settings' && <motion.div layoutId="activeNav" className="nav-item-bg" />}
               <SettingsIcon size={18} style={{ zIndex: 1 }} /> <span style={{ zIndex: 1 }}>Settings</span>
@@ -300,12 +305,13 @@ function App() {
                 currentWorkspace={workspacePath} 
                 onWorkspaceChange={setWorkspacePath} 
                 currentTrustTier={trustTier} 
-                onTrustTierChange={setTrustTier} 
+                onTrustTierChange={setTrustTier}
+                onNavigate={setViewState}
               />
             )}
             {view === 'audit_log' && <AuditLog conversationId={activeConversationId} />}
             {view === 'files' && <FileBrowser />}
-            
+            {view === 'models' && <Models />}
             {view === 'chat' && (
               <div className="main-content">
                 <div className="stats-bar">

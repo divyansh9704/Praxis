@@ -4,7 +4,6 @@
 /// extended with glob / regex pattern matching so that dynamically-registered
 /// MCP tools can inherit a default policy based on naming conventions
 /// (e.g. `mcp::*::read_*` → ReadOnly).
-
 /// The access level granted to a tool by default.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToolPolicy {

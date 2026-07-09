@@ -37,14 +37,14 @@ Praxis was built to solve the **Security vs. Autonomy** tradeoff. It gives the A
 
 ### ✅ Implemented
 - **TrustTier Security Model**: Destructive shell commands (e.g., `npm install`, `del`) automatically trigger a secure, blocking React UI prompt before execution. Safe commands are auto-executed.
-- **Workspace Isolation**: The Rust filesystem kernel statically resolves and canonicalizes all paths. Any AI attempt to traverse outside the explicitly designated project folder is violently rejected.
+- **Workspace Isolation**: The Rust filesystem kernel statically resolves and canonicalizes all paths. Any AI attempt to traverse outside the explicitly designated project folder is rejected by the permission engine.
 - **Hardware Credential Store**: API keys are saved directly into the Windows DPAPI / macOS Keychain. They are never written to disk in plain text.
-- **Audit Logging**: Every single shell command executed by the AI is logged permanently to a local SQLite database (`praxis.db`), establishing a perfect cryptographic-style ledger.
+- **Audit Logging**: Every single shell command executed by the AI is logged permanently to a local SQLite database (`praxis.db`), establishing an append-only, immutable action log.
+- **Audit Log UI**: A dedicated dashboard view to inspect the SQLite `actions` table and review all autonomous agent commands.
 - **"Quiet Luxury" UI**: A gorgeous, frameless, transparent-layered dashboard built without bloated CSS frameworks.
 
 ### 🚧 In Progress
 - **Anthropic Native API**: Direct integration bypassing OpenRouter.
-- **Audit Log UI**: A dedicated dashboard view to inspect the SQLite `actions` table.
 
 ### 📅 Planned
 - **Ollama Support**: 100% offline local model inference.

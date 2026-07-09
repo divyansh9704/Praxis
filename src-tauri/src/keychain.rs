@@ -39,6 +39,7 @@ pub fn get_api_key(provider: &str) -> Result<String, PraxisError> {
 }
 
 /// Delete an API key from the OS keychain.
+#[allow(dead_code)]
 pub fn delete_api_key(provider: &str) -> Result<(), PraxisError> {
     let username = provider_to_username(provider)?;
     let entry = keyring::Entry::new(SERVICE_NAME, username)

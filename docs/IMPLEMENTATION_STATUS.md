@@ -18,11 +18,11 @@ This document tracks the current state of Praxis features. Everything marked "Im
 ### LLM Integration
 - **LLM Router**: Routing layer in Rust supporting OpenRouter API endpoints.
 - **Tool Registry**: Rust structs mapping to LLM tool calls (File Edit, View File, Run Command, Semantic Search).
+- **Audit Log UI**: A dedicated frontend UI to browse the backend SQLite audit log events is fully implemented and records all events.
 
 ## 🚧 In Progress
 
 - **Anthropic Native Integration**: Bypassing OpenRouter to connect directly to Anthropic's Claude API.
-- **Audit Log UI**: While the backend SQLite audit log is fully implemented and recording events, the dedicated frontend UI to browse these logs is still being finalized.
 - **Plugin System**: Basic architecture scoped out, but dynamic `.dll`/`.so` loading is not yet exposed to users.
 
 ## 📅 Planned

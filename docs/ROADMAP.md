@@ -6,10 +6,10 @@
 - Workspace Isolation
 - OpenRouter Integration
 - DPAPI Keychain
+- Audit Log UI
 
 ## v1.1.0
 - **Anthropic Direct API**: Bypass routing layers for direct Claude 3.5 Sonnet access.
-- **Audit Log UI**: Fully featured frontend viewer for the SQLite audit database.
 
 ## v1.2.0
 - **Local Models**: Full integration with Ollama for 100% offline agentic coding.

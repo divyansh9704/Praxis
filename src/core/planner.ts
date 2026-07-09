@@ -175,10 +175,22 @@ Return ONLY the revised JSON plan in the same schema as before.`;
       fullResponse += token;
     };
 
+    let preferredModel = null;
+    try {
+      const prefs: any[] = await invoke('get_preferences', { memoryType: 'system' });
+      const prefModel = prefs.find(p => p.key === 'preferred_model');
+      if (prefModel) {
+        preferredModel = prefModel.value;
+      }
+    } catch {
+      // Ignore
+    }
+
     // invoke is typed loosely for IPC — we await its completion.
     await invoke('stream_llm_response', {
       messages,
       systemPrompt,
+      preferredModel,
       channel,
     });
 

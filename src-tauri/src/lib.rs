@@ -78,6 +78,8 @@ pub fn run() {
             commands::get_workspace_path,
             commands::set_workspace_path,
             commands::get_preferences,
+            commands::set_preference,
+            commands::fetch_openrouter_models,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

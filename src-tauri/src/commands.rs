@@ -170,12 +170,13 @@ pub async fn stream_llm_response(
     app_handle: tauri::AppHandle,
     messages: Vec<LlmMessage>,
     system_prompt: String,
+    preferred_model: Option<String>,
     channel: tauri::ipc::Channel<String>,
 ) -> Result<String, PraxisError> {
     let api_key = keychain::get_api_key("openrouter")?;
     let provider = OpenRouterProvider::new(api_key);
     provider
-        .complete_streaming(&messages, &system_prompt, channel, app_handle)
+        .complete_streaming(&messages, &system_prompt, preferred_model, channel, app_handle)
         .await
 }
 
@@ -436,4 +437,45 @@ pub fn get_preferences(
         .lock()
         .map_err(|e| PraxisError::General(e.to_string()))?;
     db::get_preferences(&conn, &memory_type)
+}
+
+#[tauri::command]
+pub fn set_preference(
+    state: State<'_, AppState>,
+    key: String,
+    value: String,
+    memory_type: String,
+) -> Result<String, PraxisError> {
+    let conn = state
+        .db
+        .lock()
+        .map_err(|e| PraxisError::General(e.to_string()))?;
+    db::save_preference(&conn, &key, &value, &memory_type)
+}
+
+// ---------------------------------------------------------------------------
+// OpenRouter Models
+// ---------------------------------------------------------------------------
+
+#[tauri::command]
+pub async fn fetch_openrouter_models() -> Result<serde_json::Value, PraxisError> {
+    let api_key = keychain::get_api_key("openrouter")?;
+    let client = reqwest::Client::new();
+    let res = client
+        .get("https://openrouter.ai/api/v1/models")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .send()
+        .await
+        .map_err(|e| PraxisError::General(format!("Failed to fetch models: {}", e)))?;
+
+    if !res.status().is_success() {
+        return Err(PraxisError::General(format!("API error: {}", res.status())));
+    }
+
+    let json_data: serde_json::Value = res
+        .json()
+        .await
+        .map_err(|e| PraxisError::General(format!("Failed to parse response: {}", e)))?;
+        
+    Ok(json_data)
 }

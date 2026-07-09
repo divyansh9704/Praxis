@@ -282,6 +282,7 @@ pub fn get_preferences(
 }
 
 /// Upsert a preference (insert or replace).
+#[allow(dead_code)]
 pub fn save_preference(
     conn: &Connection,
     key: &str,
@@ -290,6 +291,7 @@ pub fn save_preference(
 ) -> Result<String, PraxisError> {
     let id = Uuid::new_v4().to_string();
     let now = Utc::now().to_rfc3339();
+    conn.execute("DELETE FROM preferences WHERE key = ?1", params![key])?;
     conn.execute(
         "INSERT INTO preferences (id, key, value, memory_type, created_at) VALUES (?1, ?2, ?3, ?4, ?5)",
         params![id, key, value, memory_type, now],

@@ -9,9 +9,10 @@ interface SettingsProps {
   onWorkspaceChange: (path: string) => void;
   currentTrustTier: TrustTier;
   onTrustTierChange: (tier: TrustTier) => void;
+  onNavigate?: (view: any) => void;
 }
 
-export default function Settings({ currentWorkspace, onWorkspaceChange, currentTrustTier, onTrustTierChange }: SettingsProps) {
+export default function Settings({ currentWorkspace, onWorkspaceChange, currentTrustTier, onTrustTierChange, onNavigate }: SettingsProps) {
   const [openRouterKey, setOpenRouterKey] = useState('');
   const [serperKey, setSerperKey] = useState('');
   const [showOpenRouter, setShowOpenRouter] = useState(false);
@@ -32,6 +33,7 @@ export default function Settings({ currentWorkspace, onWorkspaceChange, currentT
 
   const [hasOrKey, setHasOrKey] = useState(false);
   const [hasSerperKey, setHasSerperKey] = useState(false);
+  const [preferredModel, setPreferredModel] = useState('');
 
   useEffect(() => {
     async function checkKeys() {
@@ -40,6 +42,16 @@ export default function Settings({ currentWorkspace, onWorkspaceChange, currentT
         setHasOrKey(orExists);
         const srExists = await invoke<boolean>('get_api_key_exists', { provider: 'serper' });
         setHasSerperKey(srExists);
+
+        try {
+          const prefs: any[] = await invoke('get_preferences', { memoryType: 'system' });
+          const prefModel = prefs.find(p => p.key === 'preferred_model');
+          if (prefModel) {
+            setPreferredModel(prefModel.value);
+          }
+        } catch (dbErr) {
+          console.warn("Could not load preferences from DB:", dbErr);
+        }
       } catch (e) {
         console.error(e);
       }
@@ -158,7 +170,23 @@ export default function Settings({ currentWorkspace, onWorkspaceChange, currentT
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: 'var(--space-md)' }}>
+            <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Active Model</label>
+            <div style={{ display: 'flex', gap: 'var(--space-md)', alignItems: 'center' }}>
+              <span style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                {preferredModel || 'qwen3-coder'}
+              </span>
+              <button 
+                className="praxis-btn" 
+                onClick={() => onNavigate && onNavigate('models')}
+                style={{ padding: '4px 12px', fontSize: '0.8rem' }}
+              >
+                Change in Models tab
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: 'var(--space-md)' }}>
             <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Serper API Key (Optional) {hasSerperKey && !serperKey && '(Stored securely)'}</label>
             <div style={{ display: 'flex', gap: 'var(--space-md)', alignItems: 'center' }}>
               <div style={{ position: 'relative', flex: 1 }}>
